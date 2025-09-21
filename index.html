@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sex Rosa Arequipa</title>
+
+  <style>
+    /* =================== Variables globales (tema) =================== */
+    
+    :root{
+      --bg-start: #ffc0cb; /* rosa claro */
+      --bg-end: #ffffff;   /* blanco */
+      --card-bg: #ffffff;  /* fondo tarjetas */
+      --muted: #6b7280;    /* texto secundario */
+      --accent: #e70707;   /* color principal */
+      --whatsapp: #25D366; /* color whatsapp */
+      --max-width: 1100px; /* ancho contenedor */
+      --radius: 12px;      /* radio bordes */
+      --shadow: 0 8px 24px rgba(16,24,40,0.06);
+    }
+
+    /* RESET basico */
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg,var(--bg-start),var(--bg-end));
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.4;
+      min-height:100vh;
+    }
+
+    /* Contenedor central */
+    .container{max-width:var(--max-width);margin:0 auto;padding:16px}
+
+    /* HEADER: titulo + acciones */
+    header{display:flex;align-items:center;justify-content:space-between;padding:20px 0}
+    header h1{font-size:28px;color:var(--accent);letter-spacing:0.5px}
+    .actions{display:flex;gap:8px;align-items:center}
+    .btn{padding:8px 14px;background:var(--accent);color:white;border-radius:8px;text-decoration:none;display:inline-block}
+    .btn-outline{background:transparent;border:1px solid rgba(0,0,0,0.08);padding:8px 12px;border-radius:8px;text-decoration:none}
+
+    /* BARRA DE BUSQUEDA */
+    .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+    .search{flex:1;display:flex;gap:8px}
+    .search input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #e6eef3;background:white}
+
+    /* =========== SLIDER (tarjetas grandes con slideshow interno) ========== */
+    #miSlider{display:flex;gap:12px;justify-content:center;margin:20px auto;max-width:1000px;overflow:hidden;padding:8px}
+    #miSlider .slide-card{flex:0 0 260px;border-radius:14px;overflow:hidden;position:relative;background:#ff087b;height:360px;box-shadow:0 6px 20px rgba(0,0,0,0.12)}
+    #miSlider .slide-card img{width:100%;height:100%;object-fit:cover;display:none}
+    #miSlider .slide-card img.active{display:block}
+
+    header a{color:rgb(255,255,255);text-decoration:none;padding:8px 12px;border-radius:6px;background:rgba(255,0,0,0.85)}
+
+    /* =========== GRID DE LISTADO (tarjetas pequeñas) =========== */
+    /* Grid responsivo: auto-fit + minmax para que se adapte a moviles */
+    .list{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:30px;
+    }
+
+    .listing-card{background:var(--card-bg);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;box-shadow:var(--shadow);position:relative;overflow:hidden;cursor:pointer}
+    /* Thumb ocupa ancho completo y altura aumentada para imagenes mas grandes */
+    .listing-card .thumb{width:100%;min-width:100%;height:220px;border-radius:10px;overflow:hidden}
+    .listing-card .thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .28s}
+    .listing-card:hover .thumb img{transform:scale(1.03)}
+
+    .meta{flex:1}
+    .meta h3{font-size:18px;margin-bottom:6px}
+    .meta p{font-size:13px;color:#374151;margin-bottom:6px}
+    .row{display:flex;justify-content:space-between;align-items:center}
+    .price{font-weight:700;color:#065f46}
+
+    /* BOTON WHATSAPP (overlay en cada tarjeta) */
+    .whatsapp-cta{position:absolute;bottom:12px;right:12px;display:flex;align-items:center;gap:6px;z-index:6}
+    .wa-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:var(--whatsapp);color:white;text-decoration:none;font-weight:600;border:0;cursor:pointer}
+    .wa-icon{width:20px;height:20px;display:inline-block;font-size:12px;line-height:20px;text-align:center}
+
+    /* Efecto ripple (JS crea .circle dentro del boton) */
+    .ripple{position:relative;overflow:hidden}
+    .ripple .circle{position:absolute;border-radius:50%;transform:scale(0);animation:ripple .6s linear;opacity:.6;background:rgba(255,255,255,0.25)}
+    @keyframes ripple{to{transform:scale(20);opacity:0}}
+
+    /* MODAL (detalle) */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+    .modal.open{display:flex}
+    .modal-content{background:white;border-radius:10px;max-width:900px;width:100%;max-height:90vh;overflow:auto;position:relative;padding:20px}
+    .modal-close{position:absolute;top:10px;right:10px;font-size:24px;color:#444;cursor:pointer;border:none;background:transparent}
+
+    .gallery{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .gallery img{width:120px;height:120px;object-fit:cover;border-radius:6px;cursor:pointer}
+
+    /* Comentarios */
+    .comments{margin-top:20px}
+    .comment{border-top:1px solid #e5e7eb;padding:10px 0}
+    .comment .author{font-weight:600;color:#1f2937}
+    .comment .date{font-size:12px;color:var(--muted)}
+    .comment .text{margin-top:4px;font-size:14px;color:#374151}
+    .comment-form textarea{width:100%;height:80px;padding:8px;border-radius:6px;border:1px solid #d1d5db}
+    .comment-form button{margin-top:8px;padding:8px 14px;background:var(--accent);color:white;border:none;border-radius:6px;cursor:pointer}
+
+    /* helpers */
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    /* Pequeños ajustes responsivos */
+    @media (max-width:480px){
+      header{flex-direction:column;align-items:flex-start;gap:10px}
+      .wa-btn .phone-text{display:none} /* ahorrar espacio en móviles */
+      .listing-card .thumb{height:180px}
+    }
+  </style>
+</head>
+<body>
+  <!-- Video de fondo (opcional) -->
+  <video id="background-video" autoplay muted loop playsinline style="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;filter:brightness(0.5)">
+    <source src="video/18.mp4" type="video/mp4">
+    Tu navegador no soporta el elemento video.
+  </video>
+
+  <!-- Contenedor principal -->
+  <div class="container" role="main">
+
+    <!-- HEADER: titulo + acciones principales -->
+    <header>
+      <h1>Sex Rosa Arequipa</h1>
+
+      <!-- Acciones -->
+      <div class="actions">
+        <a href="#" class="btn btn-start" aria-label="Ir al inicio">Inicio</a>
+        <a href="https://wa.me/51976892654?text=Hola,%20quiero%20informaci%C3%B3n" target="_blank" rel="noopener" class="btn-outline">Contactanos</a>
+        <a href="https://es.stripchat.com/girls/popular" target="_blank" class="btn">live hot</a>
+        <a href="#sobrenosotros" class="btn-outline">Sobre Nosotros</a>
+      </div>
+    </header>
+
+    <!-- BARRA DE BUSQUEDA -->
+    <section class="filters" aria-label="Busqueda">
+      <div class="search">
+        <input id="q" type="search" placeholder="Buscar por nombre, servicio o palabra clave" aria-label="buscar" />
+        <button id="btnSearch" class="btn">Buscar</button>
+      </div>
+    </section>
+
+    <!-- SLIDER: conjunto de tarjetas con slideshow interno -->
+    <h2 style="text-align:center;margin-top:6px">ANTOJITOS </h2>
+    <div id="miSlider" aria-hidden="false">
+      <div class="slide-card">
+        <img src="img/q1.jpg" class="active" alt="slide 1">
+        <img src="img/q2.jpg" alt="slide 2">
+        <img src="img/q3.jpg" alt="slide 3">
+      </div>
+      <div class="slide-card">
+        <img src="img/q4.jpg" class="active" alt="slide 4">
+        <img src="img/r1.jpg" alt="slide 5">
+        <img src="img/r2.jpg" alt="slide 6">
+      </div>
+      <div class="slide-card">
+        <img src="img/r3.jpg" class="active" alt="slide 7">
+        <img src="img/r4.jpg" alt="slide 8">
+        <img src="img/t1.jpg" alt="slide 9">
+      </div>
+      <div class="slide-card">
+        <img src="img/t2.jpg" class="active" alt="slide 10">
+        <img src="img/t3.jpg" alt="slide 11">
+        <img src="img/t4.jpg" alt="slide 12">
+      </div>
+    </div>
+
+    <!-- GRID de LISTADO: tarjetas con informacion y boton whatsapp por tarjeta -->
+    <div id="list" class="list" aria-live="polite">
+
+      <!-- Tarjeta 1 -->
+      <article class="listing-card" data-id="1" tabindex="0">
+        <div class="thumb">
+          <img src="img/y1.jpg" alt="Servicio Mireya">
+        </div>
+        <div class="meta">
+          <h3>MIREYA</h3>
+          <p>Hola guapo: atencion personalizada, salidas a hostal y domicilio. Cumplo fantasias.</p>
+          <div class="row"><div class="price">S/ 100</div></div>
+        </div>
+        <div class="whatsapp-cta">
+          <button class="wa-btn ripple" data-phone="51987654888" data-text="Hola, guapa estoy interesado andrea dame mas informacion vengo de sex rosa AQP" aria-label="Contactar por WhatsApp">
+            <span class="wa-icon">📱</span>
+            <span class="phone-text">+51 987 654 888</span>
+          </button>
+        </div>
+      </article>
+
+      <!-- Tarjeta 2 -->
+      <article class="listing-card" data-id="2" tabindex="0">
+        <div class="thumb">
+          <img src="img/y2.jpg" alt="Servicio Andrea">
+        </div>
+        <div class="meta">
+          <h3>ANDREA</h3>
+          <p>Detalles: trato cariñoso y opciones de servicio.</p>
+          <div class="row"><div class="price">S/ 150</div></div>
+        </div>
+        <div class="whatsapp-cta">
+          <button class="wa-btn ripple" data-phone="51987654999" data-text="Hola, guapa estoy interesado andrea dame mas informacion vengo de sex rosa AQP" aria-label="Contactar por WhatsApp">
+            <span class="wa-icon">📱</span>
+            <span class="phone-text">+51 987 654 999</span>
+          </button>
+        </div>
+      </article>
+
+      <!-- Tarjetas nuevas (3 - 14) -->
+      <article class="listing-card" data-id="3" tabindex="0">
+        <div class="thumb"><img src="img/y3.jpg" alt="Servicio Camila"></div>
+        <div class="meta"><h3>CAMILA</h3><p>Energia y diversion asegurada.</p><div class="row"><div class="price">S/ 120</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654111" data-text="Hola, guapa estoy interesado andrea dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 111</span></button></div>
+      </article>
+
+      <article class="listing-card" data-id="4" tabindex="0">
+        <div class="thumb"><img src="img/y4.jpg" alt="Servicio Diana"></div>
+        <div class="meta"><h3>DIANA</h3><p>Trato exclusivo y elegante.</p><div class="row"><div class="price">S/ 180</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654222" data-text="Hola, guapa estoy interesado andrea dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 222</span></button></div>
+      </article>
+
+      <article class="listing-card" data-id="5" tabindex="0">
+        <div class="thumb"><img src="img/y1.jpg" alt="Servicio Sofia"></div>
+        <div class="meta"><h3>SOFIA</h3><p>Aventura garantizada, discrecion total.</p><div class="row"><div class="price">S/ 130</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654333" data-text="Hola, Hermosa estoy interesado CAMILA dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 333</span></button></div>
+      </article>
+
+      <article class="listing-card" data-id="6" tabindex="0">
+        <div class="thumb"><img src="img/y1.jpg" alt="Servicio Valeria"></div>
+        <div class="meta"><h3>VALERIA</h3><p>Pasional y divertida.</p><div class="row"><div class="price">S/ 140</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654444" data-text="Hola, Hermosa estoy interesado CAMILA dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 444</span></button></div>
+      </article>
+
+      <article class="listing-card" data-id="7" tabindex="0">
+        <div class="thumb"><img src="img/y1.jpg" alt="Servicio Fernanda"></div>
+        <div class="meta"><h3>FERNANDA</h3><p>Experiencia unica, trato delicado.</p><div class="row"><div class="price">S/ 160</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654555" data-text="HHola, Hermosa estoy interesado CAMILA dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 555</span></button></div>
+      </article>
+
+      <article class="listing-card" data-id="8" tabindex="0">
+        <div class="thumb"><img src="img/y1.jpg" alt="Servicio Brenda"></div>
+        <div class="meta"><h3>BRENDA</h3><p>Carismatica y muy apasionada.</p><div class="row"><div class="price">S/ 110</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654666" data-text="Hola, Hermosa estoy interesado CAMILA dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 666</span></button></div>
+      </article>
+
+      <article class="listing-card" data-id="9" tabindex="0">
+        <div class="thumb"><img src="img/y1.jpg" alt="Servicio Luciana"></div>
+        <div class="meta"><h3>LUCIANA</h3><p>Discreta, sensual y divertida.</p><div class="row"><div class="price">S/ 125</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654777" data-text="Hola, Hermosa estoy interesado CAMILA dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 777</span></button></div>
+      </article>
+
+      <article class="listing-card" data-id="10" tabindex="0">
+        <div class="thumb"><img src="img/y1.jpg" alt="Servicio Mariana"></div>
+        <div class="meta"><h3>MARIANA</h3><p>Personalidad encantadora y divertida.</p><div class="row"><div class="price">S/ 135</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654888" data-text="Hola, Hermosa estoy interesado CAMILA dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 888</span></button></div>
+      </article>
+
+      <article class="listing-card" data-id="11" tabindex="0">
+        <div class="thumb"><img src="img/y1.jpg" alt="Servicio Paola"></div>
+        <div class="meta"><h3>PAOLA</h3><p>Ideal para experiencias unicas.</p><div class="row"><div class="price">S/ 145</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654999" data-text="Hola, Hermosa estoy interesado CAMILA dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 999</span></button></div>
+      </article>
+
+      <article class="listing-card" data-id="12" tabindex="0">
+        <div class="thumb"><img src="img/y1.jpg" alt="Servicio Karla"></div>
+        <div class="meta"><h3>KARLA</h3><p>Sensualidad y pasion.</p><div class="row"><div class="price">S/ 155</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654000" data-text="Hola, Hermosa estoy interesado CAMILA dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 000</span></button></div>
+      </article>
+
+      <article class="listing-card" data-id="13" tabindex="0">
+        <div class="thumb"><img src="img/y1.jpg" alt="Servicio Melany"></div>
+        <div class="meta"><h3>MELANY</h3><p>Juvenil y atrevida.</p><div class="row"><div class="price">S/ 160</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654123" data-text="Hola, Hermosa estoy interesado CAMILA dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 123</span></button></div>
+      </article>
+
+      <article class="listing-card" data-id="14" tabindex="0">
+        <div class="thumb"><img src="img/y1.jpg" alt="Servicio Tatiana"></div>
+        <div class="meta"><h3>TATIANA</h3><p>Pasional, simpatica y dedicada.</p><div class="row"><div class="price">S/ 170</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654234" data-text="Hola, Hermosa estoy interesado CAMILA dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 234</span></button></div>
+      </article>
+      <article class="listing-card" data-id="15" tabindex="0">
+        <div class="thumb"><img src="img/y1.jpg" alt="Servicio Tefany"></div>
+        <div class="meta"><h3>TATIANA</h3><p>Pasional, simpatica y dedicada.</p><div class="row"><div class="price">S/ 170</div></div></div>
+        <div class="whatsapp-cta"><button class="wa-btn ripple" data-phone="51987654234" data-text="Hola, Hermosa estoy interesado CAMILA dame mas informacion vengo de sex rosa AQP"><span class="wa-icon">📱</span><span class="phone-text">+51 987 654 234</span></button></div>
+      </article>
+
+    </div> <!-- fin list -->
+
+    <section id="sobrenosotros" style="margin-top:30px">
+      <h2>Sobre Nosotros</h2>
+      <p>
+         Asegure cumplimiento legal y normas locales antes de publicar servicios comerciales.</p>
+    </section>
+
+  </div> <!-- fin container -->
+
+  <!-- MODAL: detalle del anuncio seleccionado -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-content" role="document">
+      <button class="modal-close" aria-label="Cerrar dialogo">&times;</button>
+      <h2 id="modal-title">Titulo del producto</h2>
+      <p id="modal-price">Precio: S/ 0</p>
+      <p id="modal-desc">Descripcion detallada del producto.</p>
+
+      <div class="gallery" id="modal-gallery" aria-label="Galeria"></div>
+
+      <section class="comments" id="modal-comments">
+        <h3>Comentarios</h3>
+        <form class="comment-form" id="comment-form">
+          <textarea placeholder="Escribe tu comentario..." required></textarea>
+          <button type="submit">Enviar comentario</button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <!-- ====================== SCRIPTS ====================== -->
+  <script>
+    /* --------------------------------------------------
+       Inicializacion de slider: recorre imagenes dentro de
+       cada .slide-card y cambia la clase .active cada X ms.
+    -------------------------------------------------- */
+    function iniciarSlider(card){
+      const imgs = Array.from(card.querySelectorAll('img'));
+      if(imgs.length <= 1) return; // nada que ciclar
+      let index = imgs.findIndex(i => i.classList.contains('active'));
+      if(index < 0) index = 0;
+      imgs.forEach((el, idx) => el.classList.toggle('active', idx===index));
+      setInterval(()=>{
+        imgs[index].classList.remove('active');
+        index = (index + 1) % imgs.length;
+        imgs[index].classList.add('active');
+      }, 3000);
+    }
+    document.querySelectorAll('#miSlider .slide-card').forEach(iniciarSlider);
+
+    /* ==================================================
+       Seleccion de elementos DOM usados repetidamente
+    ================================================== */
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalPrice = document.getElementById('modal-price');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalGallery = document.getElementById('modal-gallery');
+    const modalComments = document.getElementById('modal-comments');
+    const commentForm = document.getElementById('comment-form');
+    const btnStart = document.querySelector('.btn-start');
+
+    /* ==================================================
+       Datos de ejemplo: coincide con data-id de las tarjetas
+       En produccion: sustituir por llamadas fetch a su API
+    ================================================== */
+    const exampleData = {
+      1: {
+        title: 'MIREYA',
+        price: 'S/ 100 (15 min) | S/ 150 (30 min) | S/ 250 (1 hora)',
+        desc: 'Descripcion de ejemplo de MIREYA. Reemplace por contenido real.',
+        images: ['img/y1.jpg','img/t1.jpg','img/t2.jpg'],
+        comments: [{author:'Usuario A', date:'2025-09-15', text:'Muy recomendado.'}]
+      },
+      2: {
+        title: 'ANDREA',
+        price: 'S/ 150',
+        desc: 'Descripcion de ejemplo de ANDREA. Reemplace por contenido real.',
+        images: ['img/y2.jpg','img/u1.jpg','img/u2.jpg'],
+        comments: [{author:'Usuario C', date:'2025-09-13', text:'Me gusto mucho el servicio.'}]
+      },
+      3: { title:'CAMILA', price:'S/ 120', desc:'Energia y diversion asegurada.', images:['img/y3.jpg','img/y4.jpg'], comments:[{author:'Cliente X', date:'2025-09-10', text:'Muy buena experiencia.'}] },
+      4: { title:'DIANA', price:'S/ 180', desc:'Trato exclusivo y elegante.', images:['img/y4.jpg','img/t3.jpg'], comments:[{author:'Cliente Y', date:'2025-09-12', text:'Servicio excelente.'}] },
+      5: { title:'SOFIA', price:'S/ 130', desc:'Aventura garantizada, discrecion total.', images:['img/y1.jpg','img/t2.jpg'], comments:[{author:'Cliente Z', date:'2025-09-09', text:'Discreta y amable.'}] },
+      6: { title:'VALERIA', price:'S/ 140', desc:'Pasional y divertida.', images:['img/r1.jpg','img/r4.jpg'], comments:[] },
+      7: { title:'FERNANDA', price:'S/ 160', desc:'Experiencia unica, trato delicado.', images:['img/r1.jpg','img/u3.jpg','img/u3.jpg','img/u3.jpg','img/u3.jpg'], comments:[] },
+      8: { title:'BRENDA', price:'S/ 110', desc:'Carismatica y muy apasionada.', images:['img/xn1.jpg','img/u2.jpg'], comments:[] },
+      9: { title:'LUCIANA', price:'S/ 125', desc:'Discreta, sensual y divertida.', images:['img/xn2.jpg','img/xn4.jpg'], comments:[] },
+      10:{ title:'MARIANA', price:'S/ 135', desc:'Personalidad encantadora y divertida.', images:['img/t2.jpg','img/t1.jpg'], comments:[] },
+      11:{ title:'PAOLA', price:'S/ 145', desc:'Ideal para experiencias unicas.', images:['img/t3.jpg','img/t4.jpg'], comments:[] },
+      12:{ title:'KARLA', price:'S/ 155', desc:'Sensualidad y pasion.', images:['img/y1.jpg','img/r4.jpg'], comments:[] },
+      13:{ title:'MELANY', price:'S/ 160', desc:'Juvenil y atrevida.', images:['img/u3.jpg','img/u2.jpg'], comments:[] },
+      14:{ title:'TATIANA', price:'S/ 170', desc:'Pasional, simpatica y dedicada.', images:['img/q2.jpg','img/t1.jpg'], comments:[] },
+      15:{ title:'TEFANY', price:'S/ 170', desc:'Pasional, simpatica y dedicada a lo suyo.', images:['img/q2.jpg','img/t1.jpg'], comments:[] }
+    };
+
+    /* ==================================================
+       Funcion ripple: crea un span .circle dentro del boton
+    ================================================== */
+    function createRipple(e, btn){
+      const rect = btn.getBoundingClientRect();
+      const circle = document.createElement('span');
+      circle.className = 'circle';
+      const size = Math.max(rect.width, rect.height);
+      circle.style.width = circle.style.height = size + 'px';
+      const clientX = (e.clientX !== undefined) ? e.clientX : (e.touches?.[0]?.clientX || rect.left + rect.width/2);
+      const clientY = (e.clientY !== undefined) ? e.clientY : (e.touches?.[0]?.clientY || rect.top + rect.height/2);
+      const x = clientX - rect.left - size/2;
+      const y = clientY - rect.top - size/2;
+      circle.style.left = x + 'px';
+      circle.style.top = y + 'px';
+      btn.appendChild(circle);
+      setTimeout(()=> circle.remove(), 700);
+    }
+
+    /* ==================================================
+       Apertura del modal: al click en una tarjeta (.listing-card)
+    ================================================== */
+    const listingCards = document.querySelectorAll('.listing-card');
+    listingCards.forEach(card => {
+      card.addEventListener('click', (e)=>{
+        if(e.target.closest('.wa-btn')) return; // si clic en WA, no abrir modal
+        const id = card.getAttribute('data-id');
+        const data = exampleData[id];
+        if(!data) return; // no hay datos -> ignorar
+
+        modalTitle.textContent = data.title;
+        modalPrice.textContent = 'Precio: ' + data.price;
+        modalDesc.textContent = data.desc;
+
+        // Galeria: limpiar y construir imagenes
+        modalGallery.innerHTML = '';
+        data.images.forEach(src => {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = data.title + ' imagen';
+          img.addEventListener('click', ()=> window.open(src, '_blank'));
+          modalGallery.appendChild(img);
+        });
+
+        // Comentarios: limpiar previos y agregar los actuales
+        modalComments.querySelectorAll('.comment').forEach(n=>n.remove());
+        data.comments.forEach(c => {
+          const div = document.createElement('div');
+          div.className = 'comment';
+          div.innerHTML = `<div class="author">${c.author}</div><div class="date">${c.date}</div><div class="text">${c.text}</div>`;
+          modalComments.insertBefore(div, commentForm);
+        });
+
+        // Mostrar modal y actualizar aria-hidden
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden','false');
+      });
+
+      // Hacer accesible: permitir abrir con Enter cuando la tarjeta tiene tabindex
+      card.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') card.click(); });
+    });
+
+    /* Cerrar modal: boton X, click fuera del contenido y tecla ESC */
+    modal.querySelector('.modal-close').addEventListener('click', ()=>{ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); });
+    modal.addEventListener('click', (e)=>{ if(e.target === modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }});
+    document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }});
+
+    /* FORMULARIO DE COMENTARIOS: añade comentario en memoria y en DOM (no persiste) */
+    commentForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const textarea = commentForm.querySelector('textarea');
+      const text = textarea.value.trim();
+      if(!text) return;
+      const now = new Date();
+      const date = now.toISOString().split('T')[0];
+      const newComm = document.createElement('div');
+      newComm.className = 'comment';
+      newComm.innerHTML = `<div class="author">Nuevo Usuario</div><div class="date">${date}</div><div class="text">${text}</div>`;
+      modalComments.insertBefore(newComm, commentForm);
+      textarea.value = '';
+
+      // En memoria (ejemplo): si se abrio modal con un item, lo agregamos al exampleData
+      const currentTitle = modalTitle.textContent;
+      for(const k in exampleData){
+        if(exampleData[k].title === currentTitle){
+          exampleData[k].comments.push({author:'Nuevo Usuario', date, text});
+          break;
+        }
+      }
+
+      // PARA PRODUCCION: enviar comentario al servidor via fetch POST
+    });
+
+    /* ==================================================
+       BOTONES WHATSAPP: construyen la URL wa.me desde data-phone y data-text
+    ================================================== */
+    document.querySelectorAll('.wa-btn').forEach(wa=>{
+      wa.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation(); // evitar que el click burbujee y abra el modal
+        createRipple(e, wa);
+
+        const phone = wa.getAttribute('data-phone') || '';
+        const text = wa.getAttribute('data-text') || '';
+        const cleaned = phone.replace(/\D/g,'');
+        const encoded = encodeURIComponent(text);
+        if(!cleaned){
+          alert('Numero de WhatsApp no configurado.');
+          return;
+        }
+        const url = `https://wa.me/${cleaned}?text=${encoded}`;
+        window.open(url,'_blank');
+      });
+    });
+
+    /* BOTON 'INICIO' (scroll to top) */
+    if(btnStart){
+      btnStart.addEventListener('click', (e)=>{ e.preventDefault(); window.scrollTo({top:0,behavior:'smooth'}) });
+    }
+
+    /* BOTON BUSCAR (demo local): filtra por texto en titulo/descripcion */
+    document.getElementById('btnSearch').addEventListener('click', ()=>{
+      const q = document.getElementById('q').value.trim().toLowerCase();
+      document.querySelectorAll('.listing-card').forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(q) ? '' : 'none';
+      });
+    });
+
+    /* NOTAS FINALES:
+       - Para producción: usar srcset para imágenes responsivas y validar existencia de archivos.
+       - Verificar cumplimiento legal antes de publicar servicios comerciales.
+       - Mejorar accesibilidad: focus-trap para modal, roles ARIA mas precisos y leer el foco anterior.
+    */
+  </script>
+
+</body>
+</html>
